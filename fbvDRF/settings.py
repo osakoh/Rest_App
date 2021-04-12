@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'fbvAPP.apps.FbvappConfig',  # fbvAPP
+    'cbvAPP.apps.CbvappConfig',  # cbvAPP
 
     'rest_framework',  # django rest framework
 
