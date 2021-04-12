@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -28,23 +28,25 @@ def student_list(request):
             # save data
             serializer.save()
             # return a success status
-            return Response(serializer.errors, status=status.HTTP_201_CREATED)
-        else:
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:  # serializer's not valid
             # return an error status
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['GET', 'PUT', 'DELETE'])
 def student_detail(request, pk):
     """ Handles GET, PUT and DELETE request method i.e, primary key based operations """
 
     # first retrieve the student with the specified primary key
-    try:
-        student = Student.objects.get(pk=pk)  # retrieve a single student
-    except Student.DoesNotExist:  # handles the case were a Student is not found
-        return Response(status=status.HTTP_404_NOT_FOUND)  # returns a not found status
+    # try:
+    #     student = Student.objects.get(pk=pk)  # retrieve a single student
+    # except Student.DoesNotExist:  # handles the case were a Student is not found
+    student = get_object_or_404(Student, pk=pk)
+    # return Response(status=status.HTTP_404_NOT_FOUND)  # returns a not found status
 
     if request.method == 'GET':  # READ (single student) operation
-        serializer = StudentSerializer(student)
+        serializer = StudentSerializer(student)  # create a serialized student object
         return Response(serializer.data)
 
     elif request.method == 'PUT':  # UPDATE operation
@@ -52,7 +54,7 @@ def student_detail(request, pk):
         if serializer.is_valid():  # check if valid
             serializer.save()  # save to DB
             return Response(serializer.data)
-        else:
+        else:  # serializer's not valid
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'DELETE':  # DELETE operation
