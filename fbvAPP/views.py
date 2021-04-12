@@ -33,3 +33,28 @@ def student_list(request):
             # return an error status
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+def student_detail(request, pk):
+    """ Handles GET, PUT and DELETE request method i.e, primary key based operations """
+
+    # first retrieve the student with the specified primary key
+    try:
+        student = Student.objects.get(pk=pk)  # retrieve a single student
+    except Student.DoesNotExist:  # handles the case were a Student is not found
+        return Response(status=status.HTTP_404_NOT_FOUND)  # returns a not found status
+
+    if request.method == 'GET':  # READ (single student) operation
+        serializer = StudentSerializer(student)
+        return Response(serializer.data)
+
+    elif request.method == 'PUT':  # UPDATE operation
+        serializer = StudentSerializer(student, data=request.data)  # overrides the current student data
+        if serializer.is_valid():  # check if valid
+            serializer.save()  # save to DB
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':  # DELETE operation
+        student.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
